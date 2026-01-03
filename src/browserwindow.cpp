@@ -3,6 +3,7 @@
 #include "tabwidget.h"
 #include "webview.h"
 #include <QAction>
+#include <QApplication>
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -11,6 +12,7 @@
 #include <QStatusBar>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QWebEngineHistory>
 
 BrowserWindow::BrowserWindow(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
@@ -204,15 +206,15 @@ void BrowserWindow::createMenuBar()
     
     // File menu
     QMenu *fileMenu = menuBar->addMenu(tr("&File"));
-    fileMenu->addAction(tr("&New Tab"), this, &BrowserWindow::handleNewTab, QKeySequence::AddTab);
-    fileMenu->addAction(tr("New &Window"), this, &BrowserWindow::handleNewWindow, QKeySequence::New);
+    fileMenu->addAction(tr("&New Tab"), QKeySequence::AddTab, this, &BrowserWindow::handleNewTab);
+    fileMenu->addAction(tr("New &Window"), QKeySequence::New, this, &BrowserWindow::handleNewWindow);
     fileMenu->addSeparator();
-    fileMenu->addAction(tr("&Quit"), qApp, &QApplication::quit, QKeySequence::Quit);
+    fileMenu->addAction(tr("&Quit"), QKeySequence::Quit, qApp, &QApplication::quit);
     
     // View menu
     QMenu *viewMenu = menuBar->addMenu(tr("&View"));
-    viewMenu->addAction(tr("&Reload"), this, &BrowserWindow::handleReload, QKeySequence::Refresh);
-    viewMenu->addAction(tr("&Stop"), this, &BrowserWindow::handleStop, QKeySequence(Qt::Key_Escape));
+    viewMenu->addAction(tr("&Reload"), QKeySequence::Refresh, this, &BrowserWindow::handleReload);
+    viewMenu->addAction(tr("&Stop"), QKeySequence(Qt::Key_Escape), this, &BrowserWindow::handleStop);
     
     // Help menu
     QMenu *helpMenu = menuBar->addMenu(tr("&Help"));

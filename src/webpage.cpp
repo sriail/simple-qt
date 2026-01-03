@@ -13,10 +13,7 @@ WebPage::WebPage(QWebEngineProfile *profile, QObject *parent)
 QWebEnginePage *WebPage::createWindow(QWebEnginePage::WebWindowType type)
 {
     Q_UNUSED(type);
-    
-    BrowserWindow *mainWindow = qobject_cast<BrowserWindow*>(view()->window());
-    if (!mainWindow)
-        return nullptr;
-
-    return mainWindow->tabWidget()->createTab()->page();
+    // This should rarely be called since WebView::createWindow handles most cases
+    // If it is called, we just return nullptr or create a new page
+    return nullptr;
 }
