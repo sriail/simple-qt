@@ -2,6 +2,8 @@
 
 A lightweight and modern web browser built with Qt WebEngine.
 
+![SimpleBrowser Screenshot](docs/screenshots/main-window.png)
+
 ## Features
 
 - **Tab Management**: Multi-tab browsing with QTabWidget
@@ -39,6 +41,10 @@ Following the Qt SimpleBrowser example, the layout is structured as:
 The Qt WebEngine is imported as a dependency during build time via CMake.
 
 ## Build Instructions
+
+For detailed build instructions, troubleshooting, and platform-specific guidance, see [BUILDING.md](BUILDING.md).
+
+### Quick Build
 
 ### Prerequisites
 
