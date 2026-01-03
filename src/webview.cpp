@@ -8,8 +8,11 @@ WebView::WebView(QWidget *parent)
 
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 {
-    // Create a new tab when requested
-    WebView *newView = new WebView();
+    // Emit signal to let the browser create a new tab
+    // The browser will handle the new view creation
     emit createNewTab(QUrl());
-    return newView;
+    
+    // Return nullptr as we handle tab creation through the signal
+    // The browser will set up the new tab properly
+    return nullptr;
 }
