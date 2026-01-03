@@ -20,8 +20,7 @@ int main(int argc, char *argv[])
     QWebEngineProfile::defaultProfile()->settings()->setAttribute(
         QWebEngineSettings::LocalStorageEnabled, true);
     
-    Browser browser;
-    BrowserWindow *window = browser.createWindow();
+    Browser::instance().createWindow();
     
     return app.exec();
 }

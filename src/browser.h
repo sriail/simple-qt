@@ -9,13 +9,17 @@ class BrowserWindow;
 class Browser
 {
 public:
-    Browser();
+    static Browser& instance();
     
     QVector<BrowserWindow*> windows() { return m_windows; }
     
     BrowserWindow *createWindow(bool offTheRecord = false);
 
 private:
+    Browser();
+    Browser(const Browser&) = delete;
+    Browser& operator=(const Browser&) = delete;
+    
     QVector<BrowserWindow*> m_windows;
 };
 

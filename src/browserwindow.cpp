@@ -91,6 +91,20 @@ BrowserWindow::BrowserWindow(QWidget *parent, Qt::WindowFlags flags)
     connect(m_tabWidget, &TabWidget::urlChanged, this, &BrowserWindow::handleUrlChanged);
     connect(m_tabWidget, &TabWidget::titleChanged, this, &BrowserWindow::handleTitleChanged);
     
+    // Connect progress signals
+    connect(m_tabWidget, &TabWidget::loadStarted, [this]() {
+        m_progressBar->setVisible(true);
+        m_progressBar->setValue(0);
+    });
+    
+    connect(m_tabWidget, &TabWidget::loadProgress, [this](int progress) {
+        m_progressBar->setValue(progress);
+    });
+    
+    connect(m_tabWidget, &TabWidget::loadFinished, [this]() {
+        m_progressBar->setVisible(false);
+    });
+    
     createMenuBar();
     
     // Create initial tab and load homepage
@@ -114,19 +128,6 @@ void BrowserWindow::handleUrlChanged(const QUrl &url)
     if (WebView *view = m_tabWidget->currentWebView()) {
         m_backButton->setEnabled(view->history()->canGoBack());
         m_forwardButton->setEnabled(view->history()->canGoForward());
-        
-        connect(view, &QWebEngineView::loadStarted, [this]() {
-            m_progressBar->setVisible(true);
-            m_progressBar->setValue(0);
-        });
-        
-        connect(view, &QWebEngineView::loadProgress, [this](int progress) {
-            m_progressBar->setValue(progress);
-        });
-        
-        connect(view, &QWebEngineView::loadFinished, [this]() {
-            m_progressBar->setVisible(false);
-        });
     }
 }
 
@@ -186,8 +187,7 @@ void BrowserWindow::handleNewTab()
 
 void BrowserWindow::handleNewWindow()
 {
-    // Create new browser window via Browser singleton
-    // This would need a reference to Browser instance
+    Browser::instance().createWindow();
 }
 
 void BrowserWindow::createActions()

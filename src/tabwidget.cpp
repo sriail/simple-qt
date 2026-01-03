@@ -74,6 +74,20 @@ void TabWidget::setupView(WebView *webView)
                 label += QString(" (%1%)").arg(progress);
             setTabText(index, label.isEmpty() ? tr("(Untitled)") : label);
         }
+        if (currentIndex() == index)
+            emit loadProgress(progress);
+    });
+    
+    connect(webView, &QWebEngineView::loadStarted, [this, webView]() {
+        int index = indexOf(webView);
+        if (currentIndex() == index)
+            emit loadStarted();
+    });
+    
+    connect(webView, &QWebEngineView::loadFinished, [this, webView]() {
+        int index = indexOf(webView);
+        if (currentIndex() == index)
+            emit loadFinished();
     });
 }
 

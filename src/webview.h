@@ -18,9 +18,6 @@ protected:
     QWebEngineView *createWindow(QWebEnginePage::WebWindowType type) override;
 
 private:
-    void createWebActions();
-
-private:
     WebPage *m_page = nullptr;
 };
 

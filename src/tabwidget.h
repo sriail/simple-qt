@@ -21,6 +21,9 @@ public:
 signals:
     void urlChanged(const QUrl &url);
     void titleChanged(const QString &title);
+    void loadProgress(int progress);
+    void loadStarted();
+    void loadFinished();
 
 private slots:
     void handleCurrentChanged(int index);

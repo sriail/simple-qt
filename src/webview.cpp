@@ -30,8 +30,3 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 
     return mainWindow->tabWidget()->createTab();
 }
-
-void WebView::createWebActions()
-{
-    // Web actions are created automatically by QWebEngineView
-}
