@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>html/home.html</file>
+        <file>html/error.html</file>
+        <file>html/settings.html</file>
+    </qresource>
+</RCC>
