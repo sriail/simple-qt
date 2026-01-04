@@ -7,8 +7,6 @@
 #include <QUrl>
 #include <QWebEngineProfile>
 #include <QWebEngineHistory>
-#include <QTabBar>
-#include <QStackedWidget>
 
 Browser::Browser(QWidget *parent)
     : QMainWindow(parent)
@@ -124,9 +122,13 @@ void Browser::createNewTabWithUrl(const QUrl &url)
 
     connect(webView, &WebView::createNewTab, this, &Browser::createNewTabWithUrl);
 
-    // Add tab and web view
+    // Add to stacked widget first to get the index
     int index = stackedWidget->addWidget(webView);
-    tabBar->addTab("New Tab");
+    
+    // Add tab at the same index position to keep them synchronized
+    tabBar->insertTab(index, "New Tab");
+    
+    // Set both to the new index
     tabBar->setCurrentIndex(index);
     stackedWidget->setCurrentIndex(index);
 
@@ -141,9 +143,10 @@ void Browser::createNewTabWithUrl(const QUrl &url)
 void Browser::closeTab(int index)
 {
     if (tabBar->count() > 1) {
+        // Remove from both tab bar and stacked widget at the same index
         QWidget *widget = stackedWidget->widget(index);
-        stackedWidget->removeWidget(widget);
         tabBar->removeTab(index);
+        stackedWidget->removeWidget(widget);
         widget->deleteLater();
     } else {
         // Close application if last tab is closed
