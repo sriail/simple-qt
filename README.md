@@ -19,8 +19,27 @@ A lightweight, modern implementation of the Qt WebEngine browser.
 - Qt 6.x with WebEngine module
 - C++17 compatible compiler
 
-### Building on Linux/macOS
+### Quick Build (Recommended)
 
+The easiest way to build the project is using the provided build scripts:
+
+**Linux/macOS:**
+```bash
+./build.sh
+```
+
+**Windows:**
+```bash
+build.bat
+```
+
+These scripts automatically create the build directory, configure CMake, and compile the project.
+
+### Manual Build
+
+If you prefer to build manually:
+
+**Linux/macOS:**
 ```bash
 mkdir build
 cd build
@@ -29,8 +48,7 @@ make
 ./SimpleBrowser
 ```
 
-### Building on Windows
-
+**Windows:**
 ```bash
 mkdir build
 cd build
