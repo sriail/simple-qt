@@ -29,6 +29,4 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo.
 echo Build complete!
-echo Run the application with: build\SimpleBrowser.exe
-
-cd ..
+echo Run the application with: SimpleBrowser.exe
