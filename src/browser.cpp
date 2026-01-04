@@ -7,11 +7,22 @@
 #include <QUrl>
 #include <QWebEngineProfile>
 #include <QWebEngineHistory>
+#include <QFile>
+#include <QIcon>
 
 Browser::Browser(QWidget *parent)
     : QMainWindow(parent)
 {
     homePage = "qrc:/html/home.html";
+    
+    // Load minimal stylesheet for tab close button icon
+    QFile styleFile(":/styles/browser.qss");
+    if (styleFile.open(QFile::ReadOnly)) {
+        QString styleSheet = QLatin1String(styleFile.readAll());
+        setStyleSheet(styleSheet);
+        styleFile.close();
+    }
+    
     setupUi();
     createNewTab();
 }
@@ -46,7 +57,7 @@ void Browser::setupUi()
     
     // Add new tab button
     QToolButton *newTabButton = new QToolButton(this);
-    newTabButton->setText("+");
+    newTabButton->setIcon(QIcon(":/icons/plus.png"));
     newTabButton->setToolTip("New Tab");
     tabBarLayout->addWidget(newTabButton);
     tabBarLayout->addStretch();
@@ -60,18 +71,15 @@ void Browser::setupUi()
     navigationBar->setMovable(false);
     navigationBar->setIconSize(QSize(16, 16));
 
-    // Navigation actions
-    backAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_ArrowBack), "Back");
+    // Navigation actions with Tabler icons
+    backAction = navigationBar->addAction(QIcon(":/icons/arrow-left.png"), "Back");
     connect(backAction, &QAction::triggered, this, &Browser::goBack);
 
-    forwardAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_ArrowForward), "Forward");
+    forwardAction = navigationBar->addAction(QIcon(":/icons/arrow-right.png"), "Forward");
     connect(forwardAction, &QAction::triggered, this, &Browser::goForward);
 
-    reloadAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_BrowserReload), "Reload");
+    reloadAction = navigationBar->addAction(QIcon(":/icons/reload.png"), "Reload");
     connect(reloadAction, &QAction::triggered, this, &Browser::reload);
-
-    homeAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_DirHomeIcon), "Home");
-    connect(homeAction, &QAction::triggered, this, &Browser::goHome);
 
     navigationBar->addSeparator();
 
@@ -80,6 +88,18 @@ void Browser::setupUi()
     urlBar->setPlaceholderText("Enter URL or search...");
     connect(urlBar, &QLineEdit::returnPressed, this, &Browser::navigateToUrl);
     navigationBar->addWidget(urlBar);
+
+    // Home action after URL bar
+    homeAction = navigationBar->addAction(QIcon(":/icons/home.png"), "Home");
+    connect(homeAction, &QAction::triggered, this, &Browser::goHome);
+
+    // Shield action (for future ad blocking)
+    shieldAction = navigationBar->addAction(QIcon(":/icons/shield.png"), "Security");
+    shieldAction->setEnabled(false);  // Disabled for now, will be implemented later
+
+    // More action (for future dropdown menu)
+    moreAction = navigationBar->addAction(QIcon(":/icons/dots-vertical.png"), "More");
+    moreAction->setEnabled(false);  // Disabled for now, will be implemented later
 
     // Create stacked widget for web content (below navigation bar)
     stackedWidget = new QStackedWidget(this);

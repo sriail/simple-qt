@@ -43,6 +43,8 @@ private:
     QAction *forwardAction;
     QAction *reloadAction;
     QAction *homeAction;
+    QAction *shieldAction;
+    QAction *moreAction;
     
     QString homePage;
 };

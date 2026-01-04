@@ -1,0 +1,12 @@
+/* Minimal stylesheet - only for tab close button icon */
+
+QTabBar::close-button {
+    image: url(:/icons/x.png);
+    subcontrol-position: right;
+    width: 12px;
+    height: 12px;
+}
+
+QTabBar::close-button:hover {
+    image: url(:/icons/x.png);
+}
