@@ -1,0 +1,133 @@
+/* Modern Browser Stylesheet */
+
+/* Main Window */
+QMainWindow {
+    background-color: #f5f5f5;
+}
+
+/* Tab Bar Container */
+QWidget#tabBarWidget {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Tab Bar */
+QTabBar {
+    background-color: transparent;
+    border: none;
+}
+
+QTabBar::tab {
+    background-color: #f0f0f0;
+    color: #333333;
+    border: 1px solid #e0e0e0;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 8px 16px;
+    margin-right: 2px;
+    min-width: 100px;
+}
+
+QTabBar::tab:selected {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #e0e0e0;
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: #e8e8e8;
+}
+
+QTabBar::close-button {
+    image: none;
+    subcontrol-position: right;
+    margin: 4px;
+}
+
+QTabBar::close-button:hover {
+    background-color: #e0e0e0;
+    border-radius: 4px;
+}
+
+/* New Tab Button */
+QToolButton#newTabButton {
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #555555;
+}
+
+QToolButton#newTabButton:hover {
+    background-color: #e8e8e8;
+}
+
+QToolButton#newTabButton:pressed {
+    background-color: #d0d0d0;
+}
+
+/* Navigation Toolbar */
+QToolBar {
+    background-color: #ffffff;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    spacing: 4px;
+    padding: 8px;
+}
+
+/* Navigation Buttons */
+QToolButton {
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 0px 2px;
+    color: #333333;
+    min-width: 36px;
+    min-height: 36px;
+}
+
+QToolButton:hover {
+    background-color: #f0f0f0;
+}
+
+QToolButton:pressed {
+    background-color: #e0e0e0;
+}
+
+QToolButton:disabled {
+    opacity: 0.4;
+}
+
+/* URL/Search Bar */
+QLineEdit {
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: #333333;
+    selection-background-color: #4a90e2;
+    selection-color: #ffffff;
+}
+
+QLineEdit:focus {
+    background-color: #ffffff;
+    border: 2px solid #4a90e2;
+    padding: 9px 19px;
+}
+
+QLineEdit:hover {
+    border-color: #c0c0c0;
+}
+
+/* Toolbar Separator */
+QToolBar::separator {
+    background-color: #e0e0e0;
+    width: 1px;
+    margin: 4px 8px;
+}

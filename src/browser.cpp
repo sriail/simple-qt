@@ -7,11 +7,22 @@
 #include <QUrl>
 #include <QWebEngineProfile>
 #include <QWebEngineHistory>
+#include <QFile>
+#include <QIcon>
 
 Browser::Browser(QWidget *parent)
     : QMainWindow(parent)
 {
     homePage = "qrc:/html/home.html";
+    
+    // Load and apply stylesheet
+    QFile styleFile(":/styles/browser.qss");
+    if (styleFile.open(QFile::ReadOnly)) {
+        QString styleSheet = QLatin1String(styleFile.readAll());
+        setStyleSheet(styleSheet);
+        styleFile.close();
+    }
+    
     setupUi();
     createNewTab();
 }
@@ -33,6 +44,7 @@ void Browser::setupUi()
 
     // Create tab bar at the top
     QWidget *tabBarWidget = new QWidget(this);
+    tabBarWidget->setObjectName("tabBarWidget");
     QHBoxLayout *tabBarLayout = new QHBoxLayout(tabBarWidget);
     tabBarLayout->setContentsMargins(0, 0, 0, 0);
     tabBarLayout->setSpacing(0);
@@ -46,7 +58,8 @@ void Browser::setupUi()
     
     // Add new tab button
     QToolButton *newTabButton = new QToolButton(this);
-    newTabButton->setText("+");
+    newTabButton->setObjectName("newTabButton");
+    newTabButton->setIcon(QIcon(":/icons/plus.png"));
     newTabButton->setToolTip("New Tab");
     tabBarLayout->addWidget(newTabButton);
     tabBarLayout->addStretch();
@@ -58,19 +71,19 @@ void Browser::setupUi()
     // Create navigation toolbar (below tab bar)
     navigationBar = new QToolBar(this);
     navigationBar->setMovable(false);
-    navigationBar->setIconSize(QSize(16, 16));
+    navigationBar->setIconSize(QSize(20, 20));
 
-    // Navigation actions
-    backAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_ArrowBack), "Back");
+    // Navigation actions with Tabler icons
+    backAction = navigationBar->addAction(QIcon(":/icons/arrow-left.png"), "Back");
     connect(backAction, &QAction::triggered, this, &Browser::goBack);
 
-    forwardAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_ArrowForward), "Forward");
+    forwardAction = navigationBar->addAction(QIcon(":/icons/arrow-right.png"), "Forward");
     connect(forwardAction, &QAction::triggered, this, &Browser::goForward);
 
-    reloadAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_BrowserReload), "Reload");
+    reloadAction = navigationBar->addAction(QIcon(":/icons/reload.png"), "Reload");
     connect(reloadAction, &QAction::triggered, this, &Browser::reload);
 
-    homeAction = navigationBar->addAction(style()->standardIcon(QStyle::SP_DirHomeIcon), "Home");
+    homeAction = navigationBar->addAction(QIcon(":/icons/home.png"), "Home");
     connect(homeAction, &QAction::triggered, this, &Browser::goHome);
 
     navigationBar->addSeparator();
