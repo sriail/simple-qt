@@ -33,6 +33,7 @@ private slots:
 private:
     void setupUi();
     WebView *currentWebView();
+    bool isDarkMode() const;
 
     QTabBar *tabBar;
     QStackedWidget *stackedWidget;
@@ -47,6 +48,7 @@ private:
     QAction *moreAction;
     
     QString homePage;
+    bool darkMode;
 };
 
 #endif // BROWSER_H

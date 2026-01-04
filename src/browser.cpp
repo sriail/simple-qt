@@ -9,19 +9,32 @@
 #include <QWebEngineHistory>
 #include <QFile>
 #include <QIcon>
+#include <QPalette>
+#include <QApplication>
 
 Browser::Browser(QWidget *parent)
     : QMainWindow(parent)
 {
     homePage = "qrc:/html/home.html";
     
-    // Load minimal stylesheet for tab close button icon
-    QFile styleFile(":/styles/browser.qss");
-    if (styleFile.open(QFile::ReadOnly)) {
-        QString styleSheet = QLatin1String(styleFile.readAll());
-        setStyleSheet(styleSheet);
-        styleFile.close();
-    }
+    // Detect dark mode once during initialization
+    darkMode = isDarkMode();
+    
+    // Load stylesheet with appropriate icons based on dark mode
+    QString iconPrefix = darkMode ? "white-" : "";
+    QString styleSheet = QString(
+        "QTabBar::close-button {"
+        "    image: url(:/icons/%1x.png);"
+        "    subcontrol-position: right;"
+        "    width: 12px;"
+        "    height: 12px;"
+        "}"
+        "QTabBar::close-button:hover {"
+        "    image: url(:/icons/%1x.png);"
+        "}"
+    ).arg(iconPrefix);
+    
+    setStyleSheet(styleSheet);
     
     setupUi();
     createNewTab();
@@ -35,6 +48,9 @@ void Browser::setupUi()
 {
     setWindowTitle("Simple Browser");
     resize(1200, 800);
+
+    // Determine icon prefix based on dark mode (cached during construction)
+    QString iconPrefix = darkMode ? "white-" : "";
 
     // Create central widget and main layout
     QWidget *centralWidget = new QWidget(this);
@@ -57,7 +73,7 @@ void Browser::setupUi()
     
     // Add new tab button
     QToolButton *newTabButton = new QToolButton(this);
-    newTabButton->setIcon(QIcon(":/icons/plus.png"));
+    newTabButton->setIcon(QIcon(QString(":/icons/%1plus.png").arg(iconPrefix)));
     newTabButton->setToolTip("New Tab");
     tabBarLayout->addWidget(newTabButton);
     tabBarLayout->addStretch();
@@ -72,13 +88,13 @@ void Browser::setupUi()
     navigationBar->setIconSize(QSize(16, 16));
 
     // Navigation actions with Tabler icons
-    backAction = navigationBar->addAction(QIcon(":/icons/arrow-left.png"), "Back");
+    backAction = navigationBar->addAction(QIcon(QString(":/icons/%1arrow-left.png").arg(iconPrefix)), "Back");
     connect(backAction, &QAction::triggered, this, &Browser::goBack);
 
-    forwardAction = navigationBar->addAction(QIcon(":/icons/arrow-right.png"), "Forward");
+    forwardAction = navigationBar->addAction(QIcon(QString(":/icons/%1arrow-right.png").arg(iconPrefix)), "Forward");
     connect(forwardAction, &QAction::triggered, this, &Browser::goForward);
 
-    reloadAction = navigationBar->addAction(QIcon(":/icons/reload.png"), "Reload");
+    reloadAction = navigationBar->addAction(QIcon(QString(":/icons/%1reload.png").arg(iconPrefix)), "Reload");
     connect(reloadAction, &QAction::triggered, this, &Browser::reload);
 
     navigationBar->addSeparator();
@@ -90,15 +106,15 @@ void Browser::setupUi()
     navigationBar->addWidget(urlBar);
 
     // Home action after URL bar
-    homeAction = navigationBar->addAction(QIcon(":/icons/home.png"), "Home");
+    homeAction = navigationBar->addAction(QIcon(QString(":/icons/%1home.png").arg(iconPrefix)), "Home");
     connect(homeAction, &QAction::triggered, this, &Browser::goHome);
 
     // Shield action (for future ad blocking)
-    shieldAction = navigationBar->addAction(QIcon(":/icons/shield.png"), "Security");
+    shieldAction = navigationBar->addAction(QIcon(QString(":/icons/%1shield.png").arg(iconPrefix)), "Security");
     shieldAction->setEnabled(false);  // Disabled for now, will be implemented later
 
     // More action (for future dropdown menu)
-    moreAction = navigationBar->addAction(QIcon(":/icons/dots-vertical.png"), "More");
+    moreAction = navigationBar->addAction(QIcon(QString(":/icons/%1dots-vertical.png").arg(iconPrefix)), "More");
     moreAction->setEnabled(false);  // Disabled for now, will be implemented later
 
     // Create stacked widget for web content (below navigation bar)
@@ -261,4 +277,20 @@ void Browser::tabChanged(int index)
 WebView *Browser::currentWebView()
 {
     return qobject_cast<WebView*>(stackedWidget->currentWidget());
+}
+
+bool Browser::isDarkMode() const
+{
+    // Check if the system is using a dark color scheme
+    QPalette palette = QApplication::palette();
+    QColor windowColor = palette.color(QPalette::Window);
+    
+    // Calculate luminance: if the background is darker, we're in dark mode
+    // Using relative luminance formula: 0.299*R + 0.587*G + 0.114*B
+    qreal luminance = (0.299 * windowColor.redF() + 
+                       0.587 * windowColor.greenF() + 
+                       0.114 * windowColor.blueF());
+    
+    // If luminance is less than 0.5, it's a dark theme
+    return luminance < 0.5;
 }
