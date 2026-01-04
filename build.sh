@@ -3,10 +3,22 @@
 # Simple Qt Browser Build Script
 # This script automates the build process by creating the build directory
 # and running CMake configuration
+# Use --no-install flag to skip automatic dependency installation
 
 echo "Simple Qt Browser - Build Script"
 echo "================================="
 echo ""
+
+# Parse command line arguments
+AUTO_INSTALL=1
+for arg in "$@"; do
+    case $arg in
+        --no-install)
+            AUTO_INSTALL=0
+            shift
+            ;;
+    esac
+done
 
 # Color codes for output
 RED='\033[0;31m'
@@ -161,84 +173,73 @@ print_install_instructions() {
     esac
 }
 
-# Function to offer automatic installation
-offer_auto_install() {
+# Function to automatically install dependencies
+auto_install() {
     OS=$(detect_os)
+    
+    echo ""
+    echo "Attempting automatic installation of dependencies..."
+    echo ""
     
     case "$OS" in
         ubuntu|debian|linuxmint)
-            echo ""
-            read -p "Would you like to attempt automatic installation? (y/N): " -n 1 -r
-            echo ""
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                echo "Installing dependencies..."
-                sudo apt-get update && sudo apt-get install -y cmake qt6-base-dev qt6-webengine-dev
-                if [ $? -eq 0 ]; then
-                    print_success "Dependencies installed successfully!"
-                    return 0
-                else
-                    print_error "Automatic installation failed. Please install manually."
-                    return 1
-                fi
+            echo "Installing dependencies for Ubuntu/Debian..."
+            sudo apt-get update && sudo apt-get install -y cmake qt6-base-dev qt6-webengine-dev
+            if [ $? -eq 0 ]; then
+                print_success "Dependencies installed successfully!"
+                return 0
+            else
+                print_error "Automatic installation failed. Please install manually."
+                return 1
             fi
             ;;
         fedora|rhel|centos|rocky|almalinux)
-            echo ""
-            read -p "Would you like to attempt automatic installation? (y/N): " -n 1 -r
-            echo ""
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                echo "Installing dependencies..."
-                sudo dnf install -y cmake qt6-qtbase-devel qt6-qtwebengine-devel
-                if [ $? -eq 0 ]; then
-                    print_success "Dependencies installed successfully!"
-                    return 0
-                else
-                    print_error "Automatic installation failed. Please install manually."
-                    return 1
-                fi
+            echo "Installing dependencies for Fedora/RHEL..."
+            sudo dnf install -y cmake qt6-qtbase-devel qt6-qtwebengine-devel
+            if [ $? -eq 0 ]; then
+                print_success "Dependencies installed successfully!"
+                return 0
+            else
+                print_error "Automatic installation failed. Please install manually."
+                return 1
             fi
             ;;
         arch|manjaro)
-            echo ""
-            read -p "Would you like to attempt automatic installation? (y/N): " -n 1 -r
-            echo ""
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                echo "Installing dependencies..."
-                sudo pacman -S --needed --noconfirm cmake qt6-base qt6-webengine
-                if [ $? -eq 0 ]; then
-                    print_success "Dependencies installed successfully!"
-                    return 0
-                else
-                    print_error "Automatic installation failed. Please install manually."
-                    return 1
-                fi
+            echo "Installing dependencies for Arch Linux..."
+            sudo pacman -S --needed --noconfirm cmake qt6-base qt6-webengine
+            if [ $? -eq 0 ]; then
+                print_success "Dependencies installed successfully!"
+                return 0
+            else
+                print_error "Automatic installation failed. Please install manually."
+                return 1
             fi
             ;;
         macos)
             if command -v brew &> /dev/null; then
-                echo ""
-                read -p "Would you like to attempt automatic installation using Homebrew? (y/N): " -n 1 -r
-                echo ""
-                if [[ $REPLY =~ ^[Yy]$ ]]; then
-                    echo "Installing dependencies..."
-                    brew install cmake qt@6
-                    if [ $? -eq 0 ]; then
-                        print_success "Dependencies installed successfully!"
-                        echo "Setting Qt6_DIR environment variable..."
-                        export Qt6_DIR=$(brew --prefix qt@6)/lib/cmake/Qt6
-                        return 0
-                    else
-                        print_error "Automatic installation failed. Please install manually."
-                        return 1
-                    fi
+                echo "Installing dependencies using Homebrew..."
+                brew install cmake qt@6
+                if [ $? -eq 0 ]; then
+                    print_success "Dependencies installed successfully!"
+                    echo "Setting Qt6_DIR environment variable..."
+                    export Qt6_DIR=$(brew --prefix qt@6)/lib/cmake/Qt6
+                    return 0
+                else
+                    print_error "Automatic installation failed. Please install manually."
+                    return 1
                 fi
             else
-                print_warning "Homebrew not found. Please install Homebrew first: https://brew.sh"
+                print_warning "Homebrew not found. Automatic installation not possible."
+                print_warning "Please install Homebrew first: https://brew.sh"
+                return 1
             fi
             ;;
+        *)
+            print_warning "Automatic installation not supported for your OS."
+            print_warning "Please install dependencies manually."
+            return 1
+            ;;
     esac
-    
-    return 1
 }
 
 # Run dependency checks
@@ -252,24 +253,35 @@ echo ""
 
 # If dependencies are missing, show instructions and exit
 if [ $MISSING_DEPS -eq 1 ]; then
-    print_install_instructions
-    offer_auto_install
-    
-    if [ $? -eq 0 ]; then
-        echo ""
-        echo "Re-checking dependencies after installation..."
-        echo ""
-        MISSING_DEPS=0
-        check_cmake || true
-        check_qt6 || true
-        echo ""
+    if [ $AUTO_INSTALL -eq 1 ]; then
+        auto_install
         
-        if [ $MISSING_DEPS -eq 1 ]; then
-            print_error "Some dependencies are still missing. Please check the installation and try again."
+        if [ $? -eq 0 ]; then
+            echo ""
+            echo "Re-checking dependencies after installation..."
+            echo ""
+            MISSING_DEPS=0
+            check_cmake || true
+            check_qt6 || true
+            echo ""
+            
+            if [ $MISSING_DEPS -eq 1 ]; then
+                print_error "Some dependencies are still missing. Please check the installation and try again."
+                print_install_instructions
+                exit 1
+            fi
+        else
+            print_install_instructions
+            print_error "Automatic installation failed or not supported."
+            print_error "Please install the missing dependencies manually and try again."
+            echo ""
+            echo "You can run this script with --no-install flag to skip automatic installation."
             exit 1
         fi
     else
-        print_error "Please install the missing dependencies and try again."
+        print_install_instructions
+        print_error "Automatic installation is disabled."
+        print_error "Please install the missing dependencies manually and try again."
         exit 1
     fi
 fi

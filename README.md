@@ -29,7 +29,7 @@ A lightweight, modern implementation of the Qt WebEngine browser.
 
 ### Quick Build (Recommended)
 
-The easiest way to build the project is using the provided build scripts:
+The easiest way to build the project is using the provided build scripts, which will automatically install missing dependencies:
 
 **Linux/macOS:**
 ```bash
@@ -41,7 +41,22 @@ The easiest way to build the project is using the provided build scripts:
 build.bat
 ```
 
-These scripts automatically create the build directory, configure CMake, and compile the project.
+These scripts will:
+1. Automatically detect and install missing dependencies (CMake, Qt6)
+2. Create the build directory
+3. Configure CMake
+4. Compile the project
+
+**Note:** The scripts will attempt to install dependencies automatically using your system's package manager:
+- Linux: apt-get (Ubuntu/Debian), dnf (Fedora/RHEL), or pacman (Arch)
+- macOS: Homebrew
+- Windows: Chocolatey or Winget
+
+If you want to skip automatic installation and install dependencies manually, use the `--no-install` flag:
+```bash
+./build.sh --no-install    # Linux/macOS
+build.bat --no-install     # Windows
+```
 
 ### Manual Build
 

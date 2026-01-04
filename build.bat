@@ -2,8 +2,20 @@
 REM Simple Qt Browser Build Script
 REM This script automates the build process by creating the build directory
 REM and running CMake configuration
+REM Use --no-install flag to skip automatic dependency installation
 
 setlocal enabledelayedexpansion
+
+REM Parse command line arguments
+set AUTO_INSTALL=1
+:parse_args
+if "%~1"=="" goto args_done
+if /i "%~1"=="--no-install" (
+    set AUTO_INSTALL=0
+)
+shift
+goto parse_args
+:args_done
 
 echo Simple Qt Browser - Build Script
 echo =================================
@@ -139,6 +151,66 @@ set COMPILER_OK=1
 goto :eof
 
 REM ============================================
+REM Function to automatically install dependencies
+REM ============================================
+:auto_install
+echo.
+echo Attempting automatic installation of dependencies...
+echo.
+
+REM Try Chocolatey first
+where choco >nul 2>&1
+if %errorlevel% equ 0 (
+    echo Using Chocolatey to install dependencies...
+    echo Installing CMake...
+    choco install cmake -y >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] CMake installation via Chocolatey failed
+    )
+    
+    echo Installing Qt6...
+    choco install qt6 -y >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] Qt6 installation via Chocolatey failed
+    )
+    
+    echo [SUCCESS] Chocolatey installation completed
+    echo Please restart your command prompt to update PATH
+    goto :eof
+)
+
+REM Try Winget if Chocolatey is not available
+where winget >nul 2>&1
+if %errorlevel% equ 0 (
+    echo Using Winget to install dependencies...
+    echo Installing CMake...
+    winget install -e --id Kitware.CMake --silent --accept-package-agreements --accept-source-agreements >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] CMake installation via Winget failed
+    )
+    
+    echo Installing Qt6...
+    winget install -e --id Qt.Qt.6 --silent --accept-package-agreements --accept-source-agreements >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] Qt6 installation via Winget may have failed or requires user interaction
+        echo You may need to complete the Qt installation manually
+    )
+    
+    echo [SUCCESS] Winget installation completed
+    echo Please restart your command prompt to update PATH
+    goto :eof
+)
+
+REM Neither package manager is available
+echo [WARNING] Neither Chocolatey nor Winget is available
+echo Automatic installation is not possible without a package manager
+echo.
+echo Please install Chocolatey or use Winget:
+echo   Chocolatey: https://chocolatey.org/install
+echo   Winget: Built into Windows 10/11 (may need to be enabled)
+goto :eof
+
+REM ============================================
 REM Function to print installation instructions
 REM ============================================
 :print_install_instructions
@@ -188,9 +260,26 @@ echo.
 
 REM If dependencies are missing, show instructions and exit
 if %MISSING_DEPS% equ 1 (
-    call :print_install_instructions
-    echo [ERROR] Please install the missing dependencies and try again.
-    exit /b 1
+    if %AUTO_INSTALL% equ 1 (
+        call :auto_install
+        
+        echo.
+        echo Please restart your command prompt to refresh PATH environment variable.
+        echo Then run this build script again to verify dependencies were installed correctly.
+        echo.
+        echo If automatic installation failed, you can:
+        echo   1. Try running this script again with administrator privileges
+        echo   2. Install dependencies manually (instructions below)
+        echo   3. Use --no-install flag to skip automatic installation
+        echo.
+        call :print_install_instructions
+        exit /b 1
+    ) else (
+        call :print_install_instructions
+        echo [ERROR] Automatic installation is disabled.
+        echo Please install the missing dependencies manually and try again.
+        exit /b 1
+    )
 )
 
 echo [SUCCESS] All dependencies are satisfied!
