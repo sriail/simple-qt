@@ -23,7 +23,7 @@ echo.
 echo NOTE: This script requires a C++ compiler and build tools to be installed.
 echo Common options:
 echo   - Visual Studio (with C++ Desktop Development workload)
-echo   - MinGW-w64 (with cmake -G "MinGW Makefiles" ..)
+echo   - MinGW-w64
 echo   - MSYS2 with mingw-w64 toolchain
 echo.
 
@@ -50,7 +50,7 @@ if %errorlevel% neq 0 (
     echo ERROR: CMake configuration failed.
     echo Please install one of the following:
     echo   1. Visual Studio with C++ Desktop Development workload
-    echo   2. MinGW-w64 ^(https://www.mingw-w64.org/^)
+    echo   2. MinGW-w64 (https://www.mingw-w64.org/)
     echo   3. MSYS2 with mingw-w64 toolchain
     echo.
     exit /b %errorlevel%
