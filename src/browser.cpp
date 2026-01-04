@@ -31,22 +31,31 @@ void Browser::setupUi()
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    // Create tab widget first (at the top)
-    tabWidget = new QTabWidget(this);
-    tabWidget->setTabsClosable(true);
-    tabWidget->setMovable(true);
-    tabWidget->setDocumentMode(true);
+    // Create tab bar at the top
+    QWidget *tabBarWidget = new QWidget(this);
+    QHBoxLayout *tabBarLayout = new QHBoxLayout(tabBarWidget);
+    tabBarLayout->setContentsMargins(0, 0, 0, 0);
+    tabBarLayout->setSpacing(0);
+    
+    tabBar = new QTabBar(this);
+    tabBar->setTabsClosable(true);
+    tabBar->setMovable(true);
+    tabBar->setDocumentMode(true);
+    tabBar->setExpanding(false);
+    tabBarLayout->addWidget(tabBar);
     
     // Add new tab button
     QToolButton *newTabButton = new QToolButton(this);
     newTabButton->setText("+");
     newTabButton->setToolTip("New Tab");
-    tabWidget->setCornerWidget(newTabButton, Qt::TopRightCorner);
+    tabBarLayout->addWidget(newTabButton);
+    tabBarLayout->addStretch();
+    
     connect(newTabButton, &QToolButton::clicked, this, &Browser::createNewTab);
-    connect(tabWidget, &QTabWidget::tabCloseRequested, this, &Browser::closeTab);
-    connect(tabWidget, &QTabWidget::currentChanged, this, &Browser::updateUrlBar);
+    connect(tabBar, &QTabBar::tabCloseRequested, this, &Browser::closeTab);
+    connect(tabBar, &QTabBar::currentChanged, this, &Browser::tabChanged);
 
-    // Create navigation toolbar (below tabs)
+    // Create navigation toolbar (below tab bar)
     navigationBar = new QToolBar(this);
     navigationBar->setMovable(false);
     navigationBar->setIconSize(QSize(16, 16));
@@ -72,9 +81,13 @@ void Browser::setupUi()
     connect(urlBar, &QLineEdit::returnPressed, this, &Browser::navigateToUrl);
     navigationBar->addWidget(urlBar);
 
-    // Add widgets to main layout in order: tabs, navigation bar, tab content
-    mainLayout->addWidget(tabWidget);
+    // Create stacked widget for web content (below navigation bar)
+    stackedWidget = new QStackedWidget(this);
+
+    // Add widgets to main layout in order: tab bar, navigation bar, web content
+    mainLayout->addWidget(tabBarWidget);
     mainLayout->addWidget(navigationBar);
+    mainLayout->addWidget(stackedWidget);
 
     setCentralWidget(centralWidget);
 }
@@ -90,9 +103,9 @@ void Browser::createNewTabWithUrl(const QUrl &url)
     
     // Connect signals
     connect(webView, &WebView::titleChanged, this, [this, webView](const QString &title) {
-        int index = tabWidget->indexOf(webView);
+        int index = stackedWidget->indexOf(webView);
         if (index != -1) {
-            tabWidget->setTabText(index, title.isEmpty() ? "New Tab" : title);
+            tabBar->setTabText(index, title.isEmpty() ? "New Tab" : title);
         }
     });
 
@@ -109,9 +122,15 @@ void Browser::createNewTabWithUrl(const QUrl &url)
 
     connect(webView, &WebView::createNewTab, this, &Browser::createNewTabWithUrl);
 
-    // Add tab
-    int index = tabWidget->addTab(webView, "New Tab");
-    tabWidget->setCurrentIndex(index);
+    // Add to stacked widget first to get the index
+    int index = stackedWidget->addWidget(webView);
+    
+    // Add tab at the same index position to keep them synchronized
+    tabBar->insertTab(index, "New Tab");
+    
+    // Set both to the new index
+    tabBar->setCurrentIndex(index);
+    stackedWidget->setCurrentIndex(index);
 
     // Load URL
     if (url.isEmpty()) {
@@ -123,9 +142,11 @@ void Browser::createNewTabWithUrl(const QUrl &url)
 
 void Browser::closeTab(int index)
 {
-    if (tabWidget->count() > 1) {
-        QWidget *widget = tabWidget->widget(index);
-        tabWidget->removeTab(index);
+    if (tabBar->count() > 1) {
+        // Remove from both tab bar and stacked widget at the same index
+        QWidget *widget = stackedWidget->widget(index);
+        tabBar->removeTab(index);
+        stackedWidget->removeWidget(widget);
         widget->deleteLater();
     } else {
         // Close application if last tab is closed
@@ -211,7 +232,13 @@ void Browser::updateNavigationActions()
     }
 }
 
+void Browser::tabChanged(int index)
+{
+    stackedWidget->setCurrentIndex(index);
+    updateUrlBar();
+}
+
 WebView *Browser::currentWebView()
 {
-    return qobject_cast<WebView*>(tabWidget->currentWidget());
+    return qobject_cast<WebView*>(stackedWidget->currentWidget());
 }

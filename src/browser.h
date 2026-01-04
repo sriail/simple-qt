@@ -2,7 +2,8 @@
 #define BROWSER_H
 
 #include <QMainWindow>
-#include <QTabWidget>
+#include <QTabBar>
+#include <QStackedWidget>
 #include <QLineEdit>
 #include <QToolBar>
 #include <QAction>
@@ -27,12 +28,14 @@ private slots:
     void reload();
     void goHome();
     void updateNavigationActions();
+    void tabChanged(int index);
 
 private:
     void setupUi();
     WebView *currentWebView();
 
-    QTabWidget *tabWidget;
+    QTabBar *tabBar;
+    QStackedWidget *stackedWidget;
     QLineEdit *urlBar;
     QToolBar *navigationBar;
     
