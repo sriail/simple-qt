@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Error - Simple Browser</title>
+    <title>Error</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,6 +35,15 @@
             color: #666;
             line-height: 1.6;
         }
+        ul {
+           font-size: 16px;
+           color: #666;
+           line-height: 1.6;
+
+           list-style-position: inside;
+           padding-left: 0;
+           text-align: center;
+        }
         .error-code {
             font-size: 14px;
             color: #999;
@@ -44,10 +53,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>Oops!</h1>
-        <h2>Something went wrong</h2>
-        <p>The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-        <p class="error-code">Error loading page</p>
+        <h1>404</h1>
+        <h2>Oops!</h2>
+        <p>The page you are looking for might have been removed, had its name changed, or is temporarily unavailable. If the error Presists...</p>
+        <ul>
+          <li>Ensure the Site and page URL are valid</li>
+          <li>Check your Proxy, Firewall, Or System Security Setting</li>
+          <li>Ensure that your Router, Modem, and Internet Conection are functioning and stable</li>
+        </ul>
+        <p>If the Error Continues, consider conticting your ISP or reading out <a href="https://github.com/sriail/simple-qt">Documentation.</a></p>
+        <p class="error-code">404: Error loading page</p>
     </div>
 </body>
 </html>
