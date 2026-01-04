@@ -221,6 +221,8 @@ auto_install() {
                 brew install cmake qt@6
                 if [ $? -eq 0 ]; then
                     print_success "Dependencies installed successfully!"
+                    # Export Qt6_DIR for the CMake run in this script
+                    # Note: Users may need to add this to their shell profile for future builds
                     echo "Setting Qt6_DIR environment variable..."
                     export Qt6_DIR=$(brew --prefix qt@6)/lib/cmake/Qt6
                     return 0
@@ -260,6 +262,7 @@ if [ $MISSING_DEPS -eq 1 ]; then
             echo ""
             echo "Re-checking dependencies after installation..."
             echo ""
+            # Reset flag and re-run checks (check functions will set MISSING_DEPS=1 if still missing)
             MISSING_DEPS=0
             check_cmake || true
             check_qt6 || true

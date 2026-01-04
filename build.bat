@@ -163,13 +163,13 @@ where choco >nul 2>&1
 if %errorlevel% equ 0 (
     echo Using Chocolatey to install dependencies...
     echo Installing CMake...
-    choco install cmake -y >nul 2>&1
+    choco install cmake -y
     if %errorlevel% neq 0 (
         echo [WARNING] CMake installation via Chocolatey failed
     )
     
     echo Installing Qt6...
-    choco install qt6 -y >nul 2>&1
+    choco install qt6 -y
     if %errorlevel% neq 0 (
         echo [WARNING] Qt6 installation via Chocolatey failed
     )
@@ -184,13 +184,13 @@ where winget >nul 2>&1
 if %errorlevel% equ 0 (
     echo Using Winget to install dependencies...
     echo Installing CMake...
-    winget install -e --id Kitware.CMake --silent --accept-package-agreements --accept-source-agreements >nul 2>&1
+    winget install -e --id Kitware.CMake --silent --accept-package-agreements --accept-source-agreements
     if %errorlevel% neq 0 (
         echo [WARNING] CMake installation via Winget failed
     )
     
     echo Installing Qt6...
-    winget install -e --id Qt.Qt.6 --silent --accept-package-agreements --accept-source-agreements >nul 2>&1
+    winget install -e --id Qt.Qt.6 --silent --accept-package-agreements --accept-source-agreements
     if %errorlevel% neq 0 (
         echo [WARNING] Qt6 installation via Winget may have failed or requires user interaction
         echo You may need to complete the Qt installation manually
