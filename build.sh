@@ -298,4 +298,4 @@ cmake --build .
 
 echo ""
 echo "Build complete!"
-echo "Run the application with: ./build/SimpleBrowser"
+echo "Run the application with: ./SimpleBrowser (from the build directory)"

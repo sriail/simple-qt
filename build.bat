@@ -28,16 +28,17 @@ if %errorlevel% neq 0 (
     goto :eof
 )
 
-REM Get CMake version
-for /f "tokens=3" %%v in ('cmake --version 2^>nul ^| findstr /R "cmake.version"') do set CMAKE_VERSION=%%v
-if not defined CMAKE_VERSION (
-    for /f "tokens=3" %%v in ('cmake --version 2^>nul ^| findstr /R "[0-9]"') do set CMAKE_VERSION=%%v
-)
+REM Get CMake version (optional - for display only)
+for /f "tokens=3" %%v in ('cmake --version 2^>nul ^| findstr "^cmake"') do set CMAKE_VERSION=%%v
 
 REM Simple version check - just verify it exists and runs
 cmake --version >nul 2>&1
 if %errorlevel% equ 0 (
-    echo [SUCCESS] CMake found: !CMAKE_VERSION!
+    if defined CMAKE_VERSION (
+        echo [SUCCESS] CMake found: !CMAKE_VERSION!
+    ) else (
+        echo [SUCCESS] CMake found
+    )
     set CMAKE_OK=1
 ) else (
     echo [ERROR] CMake version check failed
@@ -165,7 +166,8 @@ echo   - MinGW-w64: https://www.mingw-w64.org/
 echo   - MSYS2: https://www.msys2.org/
 echo.
 echo After installation, make sure to:
-echo   1. Add Qt6 bin directory to PATH (e.g., C:\Qt\6.x.x\msvc2019_64\bin^)
+echo   1. Add Qt6 bin directory to PATH (e.g., C:\Qt\6.x.x\{compiler}\bin^)
+echo      where {compiler} is your toolchain like msvc2019_64, mingw_64, etc.
 echo   2. Add CMake bin directory to PATH
 echo   3. Restart your command prompt
 echo.
