@@ -93,6 +93,14 @@ void Browser::setupUi()
     homeAction = navigationBar->addAction(QIcon(":/icons/home.png"), "Home");
     connect(homeAction, &QAction::triggered, this, &Browser::goHome);
 
+    // Shield action (for future ad blocking)
+    shieldAction = navigationBar->addAction(QIcon(":/icons/shield.png"), "Security");
+    shieldAction->setEnabled(false);  // Disabled for now, will be implemented later
+
+    // More action (for future dropdown menu)
+    moreAction = navigationBar->addAction(QIcon(":/icons/dots-vertical.png"), "More");
+    moreAction->setEnabled(false);  // Disabled for now, will be implemented later
+
     // Create stacked widget for web content (below navigation bar)
     stackedWidget = new QStackedWidget(this);
 

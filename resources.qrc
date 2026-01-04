@@ -10,24 +10,36 @@
         <file>icons/home.svg</file>
         <file>icons/plus.svg</file>
         <file>icons/x.svg</file>
+        <file>icons/dots-vertical.svg</file>
+        <file>icons/shield.svg</file>
+        <file>icons/shield-check.svg</file>
         <file>icons/arrow-left.png</file>
         <file>icons/arrow-right.png</file>
         <file>icons/reload.png</file>
         <file>icons/home.png</file>
         <file>icons/plus.png</file>
         <file>icons/x.png</file>
+        <file>icons/dots-vertical.png</file>
+        <file>icons/shield.png</file>
+        <file>icons/shield-check.png</file>
         <file>icons/white-arrow-left.svg</file>
         <file>icons/white-arrow-right.svg</file>
         <file>icons/white-reload.svg</file>
         <file>icons/white-home.svg</file>
         <file>icons/white-plus.svg</file>
         <file>icons/white-x.svg</file>
+        <file>icons/white-dots-vertical.svg</file>
+        <file>icons/white-shield.svg</file>
+        <file>icons/white-shield-check.svg</file>
         <file>icons/white-arrow-left.png</file>
         <file>icons/white-arrow-right.png</file>
         <file>icons/white-reload.png</file>
         <file>icons/white-home.png</file>
         <file>icons/white-plus.png</file>
         <file>icons/white-x.png</file>
+        <file>icons/white-dots-vertical.png</file>
+        <file>icons/white-shield.png</file>
+        <file>icons/white-shield-check.png</file>
         <file>styles/browser.qss</file>
     </qresource>
 </RCC>
