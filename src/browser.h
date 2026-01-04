@@ -48,6 +48,7 @@ private:
     QAction *moreAction;
     
     QString homePage;
+    bool darkMode;
 };
 
 #endif // BROWSER_H

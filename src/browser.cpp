@@ -17,8 +17,11 @@ Browser::Browser(QWidget *parent)
 {
     homePage = "qrc:/html/home.html";
     
+    // Detect dark mode once during initialization
+    darkMode = isDarkMode();
+    
     // Load stylesheet with appropriate icons based on dark mode
-    QString iconPrefix = isDarkMode() ? "white-" : "";
+    QString iconPrefix = darkMode ? "white-" : "";
     QString styleSheet = QString(
         "QTabBar::close-button {"
         "    image: url(:/icons/%1x.png);"
@@ -46,8 +49,8 @@ void Browser::setupUi()
     setWindowTitle("Simple Browser");
     resize(1200, 800);
 
-    // Determine icon prefix based on dark mode
-    QString iconPrefix = isDarkMode() ? "white-" : "";
+    // Determine icon prefix based on dark mode (cached during construction)
+    QString iconPrefix = darkMode ? "white-" : "";
 
     // Create central widget and main layout
     QWidget *centralWidget = new QWidget(this);
