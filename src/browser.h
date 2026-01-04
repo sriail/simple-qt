@@ -33,6 +33,7 @@ private slots:
 private:
     void setupUi();
     WebView *currentWebView();
+    bool isDarkMode() const;
 
     QTabBar *tabBar;
     QStackedWidget *stackedWidget;
