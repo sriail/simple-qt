@@ -1,3 +1,4 @@
+![Alt Text](icons/simple-qt-logo.png)
 # Simple Qt Browser
 
 A lightweight, modern implementation of the Qt WebEngine browser.
