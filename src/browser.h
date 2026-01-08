@@ -7,7 +7,10 @@
 #include <QLineEdit>
 #include <QToolBar>
 #include <QAction>
+#include <QSettings>
 #include "webview.h"
+
+class AdBlocker;
 
 class Browser : public QMainWindow
 {
@@ -29,11 +32,16 @@ private slots:
     void goHome();
     void updateNavigationActions();
     void tabChanged(int index);
+    void toggleAdBlocker();
+    void clearAllCookies();
 
 private:
     void setupUi();
     WebView *currentWebView();
     bool isDarkMode() const;
+    void loadSettings();
+    void saveSettings();
+    QString getSearchEngineUrl() const;
 
     QTabBar *tabBar;
     QStackedWidget *stackedWidget;
@@ -49,6 +57,10 @@ private:
     
     QString homePage;
     bool darkMode;
+    bool adBlockerEnabled;
+    
+    AdBlocker *adBlocker;
+    QSettings *settings;
 };
 
 #endif // BROWSER_H

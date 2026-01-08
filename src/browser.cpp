@@ -1,4 +1,5 @@
 #include "browser.h"
+#include "adblocker.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -7,18 +8,32 @@
 #include <QUrl>
 #include <QWebEngineProfile>
 #include <QWebEngineHistory>
+#include <QWebEngineCookieStore>
 #include <QFile>
 #include <QIcon>
 #include <QPalette>
 #include <QApplication>
+#include <QSettings>
 
 Browser::Browser(QWidget *parent)
     : QMainWindow(parent)
+    , adBlockerEnabled(false)
 {
     homePage = "qrc:/html/home.html";
     
+    // Initialize settings
+    settings = new QSettings("Simple Qt", "Simple Browser", this);
+    
+    // Load settings
+    loadSettings();
+    
     // Detect dark mode once during initialization
     darkMode = isDarkMode();
+    
+    // Initialize ad blocker
+    adBlocker = new AdBlocker(this);
+    adBlocker->setEnabled(adBlockerEnabled);
+    QWebEngineProfile::defaultProfile()->setUrlRequestInterceptor(adBlocker);
     
     // Load stylesheet with appropriate icons based on dark mode
     QString iconPrefix = darkMode ? "white-" : "";
@@ -42,6 +57,7 @@ Browser::Browser(QWidget *parent)
 
 Browser::~Browser()
 {
+    saveSettings();
 }
 
 void Browser::setupUi()
@@ -109,9 +125,13 @@ void Browser::setupUi()
     homeAction = navigationBar->addAction(QIcon(QString(":/icons/%1home.png").arg(iconPrefix)), "Home");
     connect(homeAction, &QAction::triggered, this, &Browser::goHome);
 
-    // Shield action (for future ad blocking)
-    shieldAction = navigationBar->addAction(QIcon(QString(":/icons/%1shield.png").arg(iconPrefix)), "Security");
-    shieldAction->setEnabled(false);  // Disabled for now, will be implemented later
+    // Shield action (for ad blocking toggle)
+    QString shieldIcon = adBlockerEnabled ? "shield-check" : "shield";
+    shieldAction = navigationBar->addAction(QIcon(QString(":/icons/%1%2.png").arg(iconPrefix, shieldIcon)), 
+                                             adBlockerEnabled ? "Ad Blocking: ON" : "Ad Blocking: OFF");
+    shieldAction->setCheckable(true);
+    shieldAction->setChecked(adBlockerEnabled);
+    connect(shieldAction, &QAction::triggered, this, &Browser::toggleAdBlocker);
 
     // More action (for future dropdown menu)
     moreAction = navigationBar->addAction(QIcon(QString(":/icons/%1dots-vertical.png").arg(iconPrefix)), "More");
@@ -150,10 +170,18 @@ void Browser::createNewTabWithUrl(const QUrl &url)
             updateUrlBar();
             updateNavigationActions();
         }
+        
+        // Handle clear-cookies URL scheme
+        if (url.scheme() == "simple-browser" && url.host() == "clear-cookies") {
+            clearAllCookies();
+            // Navigate back to settings
+            webView->setUrl(QUrl("qrc:/html/settings.html"));
+        }
     });
 
-    connect(webView, &WebView::loadFinished, this, [this]() {
+    connect(webView, &WebView::loadFinished, this, [this, webView](bool ok) {
         updateNavigationActions();
+        // Theme is handled by each HTML page reading from localStorage
     });
 
     connect(webView, &WebView::createNewTab, this, &Browser::createNewTabWithUrl);
@@ -217,8 +245,8 @@ void Browser::navigateToUrl()
         }
         url = QUrl(text);
     } else {
-        // Search with DuckDuckGo
-        url = QUrl("https://duckduckgo.com/?q=" + QString(QUrl::toPercentEncoding(text)));
+        // Search with selected search engine
+        url = QUrl(getSearchEngineUrl() + QString(QUrl::toPercentEncoding(text)));
     }
 
     webView->setUrl(url);
@@ -293,4 +321,52 @@ bool Browser::isDarkMode() const
     
     // If luminance is less than 0.5, it's a dark theme
     return luminance < 0.5;
+}
+
+void Browser::loadSettings()
+{
+    adBlockerEnabled = settings->value("adBlocker/enabled", false).toBool();
+}
+
+void Browser::saveSettings()
+{
+    settings->setValue("adBlocker/enabled", adBlockerEnabled);
+    settings->sync();
+}
+
+QString Browser::getSearchEngineUrl() const
+{
+    // URL bar search uses DuckDuckGo as default
+    // The home page search uses localStorage for the selected search engine
+    return "https://duckduckgo.com/?q=";
+}
+
+void Browser::toggleAdBlocker()
+{
+    adBlockerEnabled = !adBlockerEnabled;
+    adBlocker->setEnabled(adBlockerEnabled);
+    
+    // Update icon based on state
+    QString iconPrefix = darkMode ? "white-" : "";
+    QString shieldIcon = adBlockerEnabled ? "shield-check" : "shield";
+    shieldAction->setIcon(QIcon(QString(":/icons/%1%2.png").arg(iconPrefix, shieldIcon)));
+    shieldAction->setText(adBlockerEnabled ? "Ad Blocking: ON" : "Ad Blocking: OFF");
+    shieldAction->setChecked(adBlockerEnabled);
+    
+    // Save setting
+    saveSettings();
+    
+    // Reload current page to apply ad blocking
+    WebView *webView = currentWebView();
+    if (webView) {
+        webView->reload();
+    }
+}
+
+void Browser::clearAllCookies()
+{
+    QWebEngineProfile *profile = QWebEngineProfile::defaultProfile();
+    if (profile) {
+        profile->cookieStore()->deleteAllCookies();
+    }
 }

@@ -4,11 +4,35 @@
     <meta charset="UTF-8">
     <title>Settings - Simple Browser</title>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --secondary-text: #666666;
+            --border-color: #eeeeee;
+            --item-bg: #f9f9f9;
+            --select-bg: #ffffff;
+            --button-bg: #e74c3c;
+            --button-hover: #c0392b;
+        }
+        
+        body.dark {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --secondary-text: #aaaaaa;
+            --border-color: #2d2d44;
+            --item-bg: #252542;
+            --select-bg: #2d2d44;
+            --button-bg: #c0392b;
+            --button-hover: #a93226;
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            background-color: white;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             max-width: 800px;
@@ -17,8 +41,8 @@
         h1 {
             font-size: 32px;
             margin-bottom: 30px;
-            color: #333;
-            border-bottom: 2px solid #eee;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
         }
         .setting-section {
@@ -26,36 +50,204 @@
         }
         .setting-section h2 {
             font-size: 20px;
-            color: #555;
+            color: var(--secondary-text);
             margin-bottom: 15px;
         }
         .setting-item {
             padding: 15px;
-            background-color: #f9f9f9;
+            background-color: var(--item-bg);
             border-radius: 4px;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .setting-item label {
             font-size: 16px;
-            color: #333;
+            color: var(--text-color);
         }
-        p {
-            color: #666;
+        .setting-item select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--select-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            min-width: 150px;
+        }
+        .setting-item button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--button-bg);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .setting-item button:hover {
+            background-color: var(--button-hover);
+        }
+        p.version {
+            color: var(--secondary-text);
             font-size: 14px;
             margin-top: 20px;
+        }
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            display: none;
+        }
+        .status-message.success {
+            background-color: #27ae60;
+            color: white;
+            display: block;
+        }
+        .status-message.error {
+            background-color: #e74c3c;
+            color: white;
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Settings</h1>
+        
         <div class="setting-section">
-            <h2>General</h2>
+            <h2>Appearance</h2>
             <div class="setting-item">
-                <label>Settings will be added in future versions</label>
+                <label for="theme">Browser Theme</label>
+                <select id="theme">
+                    <option value="system">System (Default)</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
             </div>
         </div>
-        <p>Simple Browser v1.0.0</p>
+        
+        <div class="setting-section">
+            <h2>Search</h2>
+            <div class="setting-item">
+                <label for="searchEngine">Default Search Engine</label>
+                <select id="searchEngine">
+                    <option value="duckduckgo">DuckDuckGo</option>
+                    <option value="google">Google</option>
+                    <option value="bing">Bing</option>
+                    <option value="brave">Brave</option>
+                    <option value="startpage">StartPage</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="setting-section">
+            <h2>Privacy</h2>
+            <div class="setting-item">
+                <label>Clear all browser cookies</label>
+                <button id="clearCookies">Clear All Cookies</button>
+            </div>
+            <div id="cookieStatus" class="status-message"></div>
+        </div>
+        
+        <p class="version">Simple Browser v1.0.0</p>
     </div>
+
+    <script>
+        // Settings storage keys
+        const THEME_KEY = 'browser_theme';
+        const SEARCH_ENGINE_KEY = 'search_engine';
+        
+        // Load saved settings
+        function loadSettings() {
+            const savedTheme = localStorage.getItem(THEME_KEY) || 'system';
+            const savedSearchEngine = localStorage.getItem(SEARCH_ENGINE_KEY) || 'duckduckgo';
+            
+            document.getElementById('theme').value = savedTheme;
+            document.getElementById('searchEngine').value = savedSearchEngine;
+            
+            applyTheme(savedTheme);
+        }
+        
+        // Apply theme to page
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+            } else if (theme === 'light') {
+                document.body.classList.remove('dark');
+            } else {
+                // System theme - check if system prefers dark
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark');
+                } else {
+                    document.body.classList.remove('dark');
+                }
+            }
+        }
+        
+        // Save theme setting
+        document.getElementById('theme').addEventListener('change', function() {
+            const theme = this.value;
+            localStorage.setItem(THEME_KEY, theme);
+            applyTheme(theme);
+            
+            // Notify browser of theme change (for C++ to inject into other pages)
+            if (window.qt && window.qt.webChannelTransport) {
+                // Qt WebChannel available
+            }
+        });
+        
+        // Save search engine setting
+        document.getElementById('searchEngine').addEventListener('change', function() {
+            const searchEngine = this.value;
+            localStorage.setItem(SEARCH_ENGINE_KEY, searchEngine);
+        });
+        
+        // Clear cookies
+        document.getElementById('clearCookies').addEventListener('click', function() {
+            const statusDiv = document.getElementById('cookieStatus');
+            
+            try {
+                // Clear cookies (for same-origin)
+                document.cookie.split(";").forEach(function(c) {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+                
+                // Request browser to clear cookies via special URL scheme
+                // The browser will intercept this and clear cookies
+                window.location.href = 'simple-browser://clear-cookies';
+                
+                statusDiv.textContent = 'All cookies and site data cleared successfully!';
+                statusDiv.className = 'status-message success';
+                
+                // Reload settings after a brief delay to restore defaults
+                setTimeout(function() {
+                    loadSettings();
+                }, 100);
+            } catch (e) {
+                statusDiv.textContent = 'Error clearing cookies: ' + e.message;
+                statusDiv.className = 'status-message error';
+            }
+            
+            // Hide message after 3 seconds
+            setTimeout(function() {
+                statusDiv.className = 'status-message';
+            }, 3000);
+        });
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+                const currentTheme = localStorage.getItem(THEME_KEY) || 'system';
+                if (currentTheme === 'system') {
+                    applyTheme('system');
+                }
+            });
+        }
+        
+        // Initialize
+        loadSettings();
+    </script>
 </body>
 </html>

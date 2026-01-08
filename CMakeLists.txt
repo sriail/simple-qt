@@ -16,11 +16,13 @@ set(SOURCES
     src/main.cpp
     src/browser.cpp
     src/webview.cpp
+    src/adblocker.cpp
 )
 
 set(HEADERS
     src/browser.h
     src/webview.h
+    src/adblocker.h
 )
 
 # Resources
