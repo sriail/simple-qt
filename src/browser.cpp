@@ -9,7 +9,6 @@
 #include <QWebEngineProfile>
 #include <QWebEngineHistory>
 #include <QWebEngineCookieStore>
-#include <QWebEnginePage>
 #include <QFile>
 #include <QIcon>
 #include <QPalette>
@@ -19,8 +18,6 @@
 Browser::Browser(QWidget *parent)
     : QMainWindow(parent)
     , adBlockerEnabled(false)
-    , searchEngine("duckduckgo")
-    , themePreference("system")
 {
     homePage = "qrc:/html/home.html";
     
@@ -184,9 +181,7 @@ void Browser::createNewTabWithUrl(const QUrl &url)
 
     connect(webView, &WebView::loadFinished, this, [this, webView](bool ok) {
         updateNavigationActions();
-        if (ok) {
-            injectThemeScript(webView);
-        }
+        // Theme is handled by each HTML page reading from localStorage
     });
 
     connect(webView, &WebView::createNewTab, this, &Browser::createNewTabWithUrl);
@@ -331,30 +326,18 @@ bool Browser::isDarkMode() const
 void Browser::loadSettings()
 {
     adBlockerEnabled = settings->value("adBlocker/enabled", false).toBool();
-    searchEngine = settings->value("search/engine", "duckduckgo").toString();
-    themePreference = settings->value("appearance/theme", "system").toString();
 }
 
 void Browser::saveSettings()
 {
     settings->setValue("adBlocker/enabled", adBlockerEnabled);
-    settings->setValue("search/engine", searchEngine);
-    settings->setValue("appearance/theme", themePreference);
     settings->sync();
 }
 
 QString Browser::getSearchEngineUrl() const
 {
-    if (searchEngine == "google") {
-        return "https://www.google.com/search?q=";
-    } else if (searchEngine == "bing") {
-        return "https://www.bing.com/search?q=";
-    } else if (searchEngine == "brave") {
-        return "https://search.brave.com/search?q=";
-    } else if (searchEngine == "startpage") {
-        return "https://www.startpage.com/do/search?q=";
-    }
-    // Default to DuckDuckGo
+    // URL bar search uses DuckDuckGo as default
+    // The home page search uses localStorage for the selected search engine
     return "https://duckduckgo.com/?q=";
 }
 
@@ -386,43 +369,4 @@ void Browser::clearAllCookies()
     if (profile) {
         profile->cookieStore()->deleteAllCookies();
     }
-}
-
-void Browser::injectThemeScript(WebView *webView)
-{
-    if (!webView) return;
-    
-    // Inject theme CSS based on preference
-    QString script;
-    
-    bool shouldUseDark = false;
-    if (themePreference == "dark") {
-        shouldUseDark = true;
-    } else if (themePreference == "system") {
-        shouldUseDark = darkMode;
-    }
-    
-    if (shouldUseDark) {
-        script = R"(
-            (function() {
-                // Check if we're on a Simple Browser internal page
-                if (window.location.protocol === 'qrc:') {
-                    if (!document.body.classList.contains('dark')) {
-                        document.body.classList.add('dark');
-                    }
-                }
-            })();
-        )";
-    } else {
-        script = R"(
-            (function() {
-                // Check if we're on a Simple Browser internal page
-                if (window.location.protocol === 'qrc:') {
-                    document.body.classList.remove('dark');
-                }
-            })();
-        )";
-    }
-    
-    webView->page()->runJavaScript(script);
 }

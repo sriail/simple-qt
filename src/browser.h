@@ -42,7 +42,6 @@ private:
     void loadSettings();
     void saveSettings();
     QString getSearchEngineUrl() const;
-    void injectThemeScript(WebView *webView);
 
     QTabBar *tabBar;
     QStackedWidget *stackedWidget;
@@ -59,8 +58,6 @@ private:
     QString homePage;
     bool darkMode;
     bool adBlockerEnabled;
-    QString searchEngine;
-    QString themePreference;
     
     AdBlocker *adBlocker;
     QSettings *settings;

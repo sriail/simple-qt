@@ -209,12 +209,6 @@
             const statusDiv = document.getElementById('cookieStatus');
             
             try {
-                // Clear localStorage
-                localStorage.clear();
-                
-                // Clear sessionStorage
-                sessionStorage.clear();
-                
                 // Clear cookies (for same-origin)
                 document.cookie.split(";").forEach(function(c) {
                     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
