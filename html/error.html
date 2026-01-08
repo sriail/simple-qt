@@ -4,9 +4,26 @@
     <meta charset="UTF-8">
     <title>Error</title>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --secondary-text: #666666;
+            --error-color: #d32f2f;
+            --link-color: #4a90d9;
+        }
+        
+        body.dark {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --secondary-text: #aaaaaa;
+            --error-color: #ef5350;
+            --link-color: #64b5f6;
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            background-color: white;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
             display: flex;
@@ -14,6 +31,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             text-align: center;
@@ -23,30 +41,37 @@
         h1 {
             font-size: 72px;
             margin: 0;
-            color: #d32f2f;
+            color: var(--error-color);
         }
         h2 {
             font-size: 24px;
             margin: 20px 0;
-            color: #333;
+            color: var(--text-color);
         }
         p {
             font-size: 16px;
-            color: #666;
+            color: var(--secondary-text);
             line-height: 1.6;
         }
         ul {
            font-size: 16px;
-           color: #666;
+           color: var(--secondary-text);
            line-height: 1.6;
 
            list-style-position: inside;
            padding-left: 0;
            text-align: center;
         }
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
         .error-code {
             font-size: 14px;
-            color: #999;
+            color: var(--secondary-text);
             margin-top: 20px;
         }
     </style>
@@ -64,5 +89,41 @@
         <p>If the Error Continues, consider conticting your ISP or reading out <a href="https://github.com/sriail/simple-qt">Documentation.</a></p>
         <p class="error-code">404: Error loading page</p>
     </div>
+    
+    <script>
+        // Settings storage key
+        const THEME_KEY = 'browser_theme';
+        
+        // Apply theme to page
+        function applyTheme() {
+            const theme = localStorage.getItem(THEME_KEY) || 'system';
+            
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+            } else if (theme === 'light') {
+                document.body.classList.remove('dark');
+            } else {
+                // System theme - check if system prefers dark
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark');
+                } else {
+                    document.body.classList.remove('dark');
+                }
+            }
+        }
+        
+        // Apply theme on load
+        applyTheme();
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+                const currentTheme = localStorage.getItem(THEME_KEY) || 'system';
+                if (currentTheme === 'system') {
+                    applyTheme();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

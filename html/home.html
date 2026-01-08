@@ -4,9 +4,24 @@
     <meta charset="UTF-8">
     <title>New Tab</title>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --input-bg: #ffffff;
+        }
+        
+        body.dark {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --border-color: #2d2d44;
+            --input-bg: #252542;
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            background-color: white;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
             display: flex;
@@ -14,6 +29,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             text-align: center;
@@ -23,18 +39,24 @@
         h1 {
             font-size: 100px;
             margin-bottom: 40px;
-            color: #333;
+            color: var(--text-color);
         }
         .search-box {
             width: 100%;
             padding: 15px;
             font-size: 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 24px;
             box-sizing: border-box;
             outline: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        .search-box::placeholder {
+            color: #888888;
         }
         .search-box:focus {
+            border-color: #4a90d9;
         }
    </style>
 </head>
@@ -47,6 +69,56 @@
     </div>
 
     <script>
+        // Settings storage keys
+        const THEME_KEY = 'browser_theme';
+        const SEARCH_ENGINE_KEY = 'search_engine';
+        
+        // Search engine URLs
+        const SEARCH_ENGINES = {
+            'duckduckgo': 'https://duckduckgo.com/?q=',
+            'google': 'https://www.google.com/search?q=',
+            'bing': 'https://www.bing.com/search?q=',
+            'brave': 'https://search.brave.com/search?q=',
+            'startpage': 'https://www.startpage.com/do/search?q='
+        };
+        
+        // Apply theme to page
+        function applyTheme() {
+            const theme = localStorage.getItem(THEME_KEY) || 'system';
+            
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+            } else if (theme === 'light') {
+                document.body.classList.remove('dark');
+            } else {
+                // System theme - check if system prefers dark
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark');
+                } else {
+                    document.body.classList.remove('dark');
+                }
+            }
+        }
+        
+        // Get current search engine
+        function getSearchUrl() {
+            const engine = localStorage.getItem(SEARCH_ENGINE_KEY) || 'duckduckgo';
+            return SEARCH_ENGINES[engine] || SEARCH_ENGINES['duckduckgo'];
+        }
+        
+        // Apply theme on load
+        applyTheme();
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+                const currentTheme = localStorage.getItem(THEME_KEY) || 'system';
+                if (currentTheme === 'system') {
+                    applyTheme();
+                }
+            });
+        }
+        
         document.getElementById('searchForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -67,8 +139,8 @@
                 }
                 window.location.href = url;
             } else {
-                // Search with DuckDuckGo
-                window.location.href = 'https://duckduckgo.com/?q=' + encodeURIComponent(query);
+                // Search with selected search engine
+                window.location.href = getSearchUrl() + encodeURIComponent(query);
             }
         });
     </script>
